@@ -903,10 +903,10 @@
   dependencies:
     uuid "^8.3.2"
 
-"@irony0901/toolbox@0.8.2":
-  version "0.8.2"
-  resolved "https://registry.yarnpkg.com/@irony0901/toolbox/-/toolbox-0.8.2.tgz#74d97ce894b6f17e0551446c3eb6a3b1fbb00ec2"
-  integrity sha512-e306goVNZwSn7lgy3PW77vpeQgGn1sZYuk4oEtnlr45Lb7U+fvwep2JZAzvhj4Yt4LCN1KVWiC84fIMqGaRktA==
+"@irony0901/toolbox@0.8.3":
+  version "0.8.3"
+  resolved "https://registry.yarnpkg.com/@irony0901/toolbox/-/toolbox-0.8.3.tgz#4329df79857155ddab71880ca5fd4ef806c3138c"
+  integrity sha512-7ISL36yeiBSAqMM1rVkm7xIOugyFts37sXOPVla6KvuQgPYvAxLFroxWf9kt0n7bvAy64b43K6qJTxsk/8GSUQ==
   dependencies:
     "@irony0901/format" "^0.1.0"
     tslib "^2.4.0"

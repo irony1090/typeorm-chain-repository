@@ -1,7 +1,7 @@
-import { deepClone, deepSelectFlatMap, entriesTypeGuard, getIdsRecord, getPick, isContains, setFieldRelation } from "@irony0901/toolbox";
+import { ArrayElementType, Bridge, PathString, Relation, StartString, deepClone, deepSelectFlatMap, entriesTypeGuard, getIdsRecord, getPick, isContains, setFieldRelation } from "@irony0901/toolbox";
 import { isUndeclared, isBlank } from "@irony0901/format";
-import { ArrayElementType, Bridge, PathString, Relation, StartString } from "@irony0901/toolbox/type";
-import { DeepPartial, EntityManager, ObjectType, Repository, SaveOptions, SelectQueryBuilder } from "typeorm";
+// import { ArrayElementType, Bridge, PathString, Relation, StartString } from "@irony0901/toolbox/type";
+import { DeepPartial, EntityManager, EntityTarget, ObjectLiteral, ObjectType, QueryRunner, Repository, SaveOptions, SelectQueryBuilder } from "typeorm";
 
 export type BridgesProps<Self> = {
   entityManager: EntityManager;
@@ -494,3 +494,53 @@ const stringToArrayFilterDuplicate = ( details: Array<string>, init: Array<Array
   }, init )
 
 }
+
+// class DynamicChainRepository <T, P extends PathString<T>> extends ChainRepository<T> {
+//   public primaryKeys: Array<keyof T>;
+//   public alias: string;
+//   public relationChain: ChainRelation<T>|undefined;
+//   public setPropertySubscriber: Array<SetPropertyEvent<T, P>>|undefined;
+//   public saveSubscribe: SaveSubscriber<T, P>|undefined;
+// }
+
+export const createChainRepository = <
+  T extends ObjectLiteral, P extends PathString<T>, R extends ChainRepository<T, P>
+>(
+  _target: EntityTarget<T>, 
+  {
+    primaryKeys,
+    alias,
+    relationChain,
+    setPropertySubscriber
+  }: { 
+    primaryKeys: Array<keyof T>;
+    alias: string;
+    relationChain: ChainRelation<T>|undefined;
+    setPropertySubscriber: Array<SetPropertyEvent<T, P>>|undefined;
+  }
+): new (target: EntityTarget<T>, manager: EntityManager, queryRunner?: QueryRunner) => R => 
+  class DynamicChainRepository_ extends ChainRepository<T, P> {
+    public primaryKeys: Array<keyof T> = primaryKeys;
+    public alias: string = alias;
+    public relationChain: ChainRelation<T>|undefined = relationChain;
+    public setPropertySubscriber: Array<SetPropertyEvent<T, P>>|undefined = setPropertySubscriber;
+    public saveSubscribe: SaveSubscriber<T, P>|undefined;
+  } as any
+
+export class Menu {
+  id: string;
+
+  key: string;
+
+  absoluteKey: string;
+
+  title?: string;
+}
+// export const MenuRepo = createChainRepository(Menu, { primaryKeys: ['id'], alias: 'MNU', 
+//   relationChain: {
+
+//   },
+//   setPropertySubscriber: undefined
+// })
+
+// export const ReRepo = createChainRepository({}, {});

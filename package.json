@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@irony0901/format": "^0.1.0",
-    "@irony0901/toolbox": "0.8.2"
+    "@irony0901/toolbox": "0.8.3"
   },
   "devDependencies": {
     "@babel/core": "^7.18.9",
