@@ -59,7 +59,7 @@ type SaveEvent<T> = {
   beforeSave?: (param: Omit<SaveEventParam<T>, 'cloneEntity'>) => void;
   afterSave?: (param: SaveEventParam<T>) => void;
 }
-export type SaveSubscriber<T, P extends string> = {
+export type SaveSubscriber<T, P extends PathString<T>> = {
   details?: Array<P>;
   events: Array< SaveEvent<T> >
 }
@@ -303,7 +303,7 @@ type FilterAfterEvent<T> = {
   cloneEntity: DeepPartial<T>;
   action: (param: SaveEventParam<T>) => void;
 }
-const filterEventFromSaveSubscribe = <T, P extends string> (
+const filterEventFromSaveSubscribe = <T, P extends PathString<T>> (
   saveSubscribe: SaveSubscriber<T, P> ,  entities: Array<DeepPartial<T>>
 ): {beforeEvents: Array<FilterBeforeEvent<T>>, afterEvents: Array<FilterAfterEvent<T>> } => entities.reduce( ( result, entity ) => {
     saveSubscribe.events.forEach( event  => {
@@ -513,32 +513,25 @@ export const createChainRepository = <
     primaryKeys,
     alias,
     relationChain,
-    setPropertySubscriber
+    setPropertySubscriber,
+    saveSubscribe
   }: { 
     primaryKeys: Array<keyof T>;
     alias: string;
     relationChain?: ChainRelation<T>;
-    setPropertySubscriber?: Array<SetPropertyEvent<T, P>>;
-    saveSubscribe?: SaveSubscriber<T, P>;
+    setPropertySubscriber?: Array<SetPropertyEvent<T, PathString<T>>>;
+    saveSubscribe?: SaveSubscriber<T, PathString<T>>;
   }
 ): new (target: ObjectType<T>, manager: EntityManager, queryRunner?: QueryRunner) => R => 
   class DynamicChainRepository_ extends ChainRepository<T, P> {
     public primaryKeys: Array<keyof T> = primaryKeys;
     public alias: string = alias;
     public relationChain: ChainRelation<T>|undefined = relationChain;
-    public setPropertySubscriber: Array<SetPropertyEvent<T, P>>|undefined = setPropertySubscriber;
-    public saveSubscribe: SaveSubscriber<T, P>|undefined;
+    public setPropertySubscriber: Array<SetPropertyEvent<T, P>>|undefined = setPropertySubscriber as any;
+    public saveSubscribe: SaveSubscriber<T, P>|undefined = saveSubscribe as any;
   } as any
 
-export class Menu {
-  id: string;
 
-  key: string;
-
-  absoluteKey: string;
-
-  title?: string;
-}
 // export const MenuRepo = createChainRepository(Menu, { primaryKeys: ['id'], alias: 'MNU', 
 //   relationChain: {
 
