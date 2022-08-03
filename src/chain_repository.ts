@@ -102,10 +102,12 @@ export abstract class ChainRepository<T, P extends PathString<T> = PathString<T>
   async setProperty( 
     detailsOrOption: DynamicSetPropertyOptionParam<P>, entities: Array<any>, relation?: Relation<T, any>
   ): Promise<Array<any>> {
+    
     const option: {details: Array<P>, data?: any} = (Array.isArray(detailsOrOption) ? { details: detailsOrOption } : detailsOrOption);
     const details = option?.details;
+
     if( 
-      !details || details.length === 0 
+      !details 
       || entities.filter( item => !!item ).length === 0
     )
       return entities;
@@ -115,7 +117,7 @@ export abstract class ChainRepository<T, P extends PathString<T> = PathString<T>
         relation.bridges.map( ({inverse}) => inverse),
         this.primaryKeys
       )
-  
+      
       if( 
         entriesTypeGuard(pks)
         .filter( ([_, val]) => val.length === 0)
@@ -179,7 +181,7 @@ export abstract class ChainRepository<T, P extends PathString<T> = PathString<T>
         if( val.Repository ){
           if( !(val.Repository.prototype instanceof ChainRepository) )
             return
-
+          
           const { getBridges, fieldIsMany } = val;
           const repo = (new (val.Repository as any)(val.Entity, this.manager, this.manager.queryRunner) as ChainRepository<never>);
           promises.push(
@@ -506,7 +508,7 @@ const stringToArrayFilterDuplicate = ( details: Array<string>, init: Array<Array
 export const createChainRepository = <
   T extends ObjectLiteral, P extends PathString<T>, R extends ChainRepository<T, P>
 >(
-  _target: EntityTarget<T>, 
+  _target: ObjectType<T>, 
   {
     primaryKeys,
     alias,
@@ -515,10 +517,11 @@ export const createChainRepository = <
   }: { 
     primaryKeys: Array<keyof T>;
     alias: string;
-    relationChain: ChainRelation<T>|undefined;
-    setPropertySubscriber: Array<SetPropertyEvent<T, P>>|undefined;
+    relationChain?: ChainRelation<T>;
+    setPropertySubscriber?: Array<SetPropertyEvent<T, P>>;
+    saveSubscribe?: SaveSubscriber<T, P>;
   }
-): new (target: EntityTarget<T>, manager: EntityManager, queryRunner?: QueryRunner) => R => 
+): new (target: ObjectType<T>, manager: EntityManager, queryRunner?: QueryRunner) => R => 
   class DynamicChainRepository_ extends ChainRepository<T, P> {
     public primaryKeys: Array<keyof T> = primaryKeys;
     public alias: string = alias;
