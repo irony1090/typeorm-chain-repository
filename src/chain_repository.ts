@@ -1,7 +1,8 @@
 import { ArrayElementType, Bridge, PathString, Relation, StartString, deepClone, deepSelectFlatMap, entriesTypeGuard, getIdsRecord, getPick, isContains, setFieldRelation } from "@irony0901/toolbox";
 import { isUndeclared, isBlank } from "@irony0901/format";
 // import { ArrayElementType, Bridge, PathString, Relation, StartString } from "@irony0901/toolbox/type";
-import { DeepPartial, EntityManager, EntityTarget, ObjectLiteral, ObjectType, QueryRunner, Repository, SaveOptions, SelectQueryBuilder } from "typeorm";
+import { DeepPartial, EntityManager, ObjectLiteral, ObjectType, QueryRunner, Repository, SaveOptions, SelectQueryBuilder } from "typeorm";
+import { getReflectProperty, setReflectProperty } from "util/reflect.util";
 
 export type BridgesProps<Self> = {
   entityManager: EntityManager;
@@ -497,18 +498,11 @@ const stringToArrayFilterDuplicate = ( details: Array<string>, init: Array<Array
 
 }
 
-// class DynamicChainRepository <T, P extends PathString<T>> extends ChainRepository<T> {
-//   public primaryKeys: Array<keyof T>;
-//   public alias: string;
-//   public relationChain: ChainRelation<T>|undefined;
-//   public setPropertySubscriber: Array<SetPropertyEvent<T, P>>|undefined;
-//   public saveSubscribe: SaveSubscriber<T, P>|undefined;
-// }
-
+const REFLECT_KEY = 'ENTITY';
 export const createChainRepository = <
   T extends ObjectLiteral, P extends PathString<T>, R extends ChainRepository<T, P>
 >(
-  _target: ObjectType<T>, 
+  target: ObjectType<T>, 
   {
     primaryKeys,
     alias,
@@ -522,21 +516,41 @@ export const createChainRepository = <
     setPropertySubscriber?: Array<SetPropertyEvent<T, PathString<T>>>;
     saveSubscribe?: SaveSubscriber<T, PathString<T>>;
   }
-): new (target: ObjectType<T>, manager: EntityManager, queryRunner?: QueryRunner) => R => 
-  class DynamicChainRepository_ extends ChainRepository<T, P> {
+): new (target: ObjectType<T>, manager: EntityManager, queryRunner?: QueryRunner) => R => {
+  const dynamicCls = class DynamicChainRepository extends ChainRepository<T, P> {
     public primaryKeys: Array<keyof T> = primaryKeys;
     public alias: string = alias;
     public relationChain: ChainRelation<T>|undefined = relationChain;
     public setPropertySubscriber: Array<SetPropertyEvent<T, P>>|undefined = setPropertySubscriber as any;
     public saveSubscribe: SaveSubscriber<T, P>|undefined = saveSubscribe as any;
-  } as any
+  }
 
+  setReflectProperty(target, dynamicCls, REFLECT_KEY)
 
-// export const MenuRepo = createChainRepository(Menu, { primaryKeys: ['id'], alias: 'MNU', 
-//   relationChain: {
+  return dynamicCls as any;
+}
+  
 
-//   },
-//   setPropertySubscriber: undefined
-// })
+type DynamicRepository<T> = T extends Repository<any> 
+  ? T 
+  : ChainRepository<T>
+type ConvertRepositories<T> = {
+  [P in keyof T]: DynamicRepository<T[P]>
+}
+export const getChainRepositories = <T>(
+  repositories: {[P in keyof T]: ObjectType<T[P]>}, entityManager: EntityManager
+): ConvertRepositories<T> => {
+  if( !entityManager )
+    return {} as ConvertRepositories<T>;
 
-// export const ReRepo = createChainRepository({}, {});
+  return entriesTypeGuard(repositories).reduce( (result, [key, val]) => {
+    // console.log(`${key} is extends Repository?`, val.prototype instanceof Repository, val);
+    if(val.prototype instanceof ChainRepository ){
+      const Entity = getReflectProperty(val, REFLECT_KEY);
+      if( Entity )
+        result[key] = new (val as any)(Entity, entityManager, entityManager.queryRunner) as DynamicRepository<T[keyof T]>
+    }else
+      result[key] = entityManager.getRepository(val) as DynamicRepository<T[keyof T]>
+    return result;
+  }, {} as ConvertRepositories<T>)
+}
