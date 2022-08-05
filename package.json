@@ -1,6 +1,6 @@
 {
   "name": "@irony0901/typeorm-chain-repository",
-  "version": "0.3.0",
+  "version": "0.3.7-01",
   "description": "typeorm's dynamic repository",
   "main": "./dist/index.cjs.js",
   "types": "./dist/src/chain_repository.d.ts",
@@ -44,8 +44,10 @@
   },
   "keywords": [
     "typeorm",
+    "dynamic",
     "relation",
     "chain",
-    "repository"
+    "repository",
+    "deep path"
   ]
 }

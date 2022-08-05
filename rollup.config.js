@@ -113,6 +113,7 @@ export default [
       pluginTypescript(typescriptConfig),
       pluginCommonjs({
         extensions: [".js", ".ts"],
+        // include: [pkg.main, 'node_modules/**']
       }),
       babel({
         babelHelpers: "bundled",
@@ -120,6 +121,7 @@ export default [
       }),
       pluginNodeResolve({
         browser: false,
+        // modulesOnly: true
       }),
     ],
   },

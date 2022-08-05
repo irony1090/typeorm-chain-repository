@@ -4,6 +4,8 @@ import { isUndeclared, isBlank } from "@irony0901/format";
 import { DeepPartial, EntityManager, ObjectLiteral, ObjectType, QueryRunner, Repository, SaveOptions, SelectQueryBuilder } from "typeorm";
 import { getReflectProperty, setReflectProperty } from "util/reflect.util";
 
+export * from '@irony0901/toolbox';
+
 export type BridgesProps<Self> = {
   entityManager: EntityManager;
   selfEntities: Array<Self>;
@@ -512,7 +514,7 @@ export const createChainRepository = <
   }: { 
     primaryKeys: Array<keyof T>;
     alias: string;
-    relationChain?: ChainRelation<T>;
+    relationChain: ChainRelation<T>;
     setPropertySubscriber?: Array<SetPropertyEvent<T, PathString<T>>>;
     saveSubscribe?: SaveSubscriber<T, PathString<T>>;
   }
