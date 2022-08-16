@@ -1,9 +1,8 @@
-import { ArrayElementType, Bridge, PathString, Relation, StartString, deepClone, deepSelectFlatMap, entriesTypeGuard, getIdsRecord, getPick, isContains, setFieldRelation } from "@irony0901/toolbox";
-import { isUndeclared, isBlank } from "@irony0901/format";
+import {  ArrayElementType, Bridge, PathString, Relation, StartString, deepClone, deepSelectFlatMap, entriesTypeGuard, getIdsRecord, getPick, isContains, setFieldRelation, isUndeclared, isBlank } from "@irony0901/toolbox";
+// import { isUndeclared, isBlank } from "@irony0901/format";
 // import { ArrayElementType, Bridge, PathString, Relation, StartString } from "@irony0901/toolbox/type";
 import { DeepPartial, EntityManager, ObjectLiteral, ObjectType, QueryRunner, Repository, SaveOptions, SelectQueryBuilder } from "typeorm";
 import { getReflectProperty, setReflectProperty } from "util/reflect.util";
-
 export * from '@irony0901/toolbox';
 
 export type BridgesProps<Self> = {
